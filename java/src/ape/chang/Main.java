@@ -14,34 +14,29 @@ public class Main {
   static class DAG {
     static class Node {
       public int id;
-      public Node(int id) {this.id = id;}
+      public List<Node> next;
+      public Node(int id) {
+        this.id = id;
+        this.next = new ArrayList<Node>();
+      }
       // extra
       public int virus;
       public int indegree; 
     };
-    static class Edge {
-      public Node from;
-      public Node to;
-      public Edge(Node from, Node to) {this.from = from; this.to = to;}
-    };
     
     private List<Node> nodes;
-    private Map<Integer, List<Node>> edges;
     
     public void addEdge(int from, int to) {
       nodes.get(to-1).indegree++;
-      edges.get(from).add(nodes.get(to-1));
+      nodes.get(from-1).next.add(nodes.get(to-1));
     }
     
     public Node getNode(int id) {return nodes.get(id-1);}
     
     public DAG(int n) {
       nodes = new ArrayList<Main.DAG.Node>();
-      edges = new HashMap<Integer, List<Node>>();
-      for (int i = 1; i <= n; ++i) {
+      for (int i = 1; i <= n; ++i) 
         nodes.add(new Node(i));
-        edges.put(i, new ArrayList<Node>());
-      }
     }
     
     public void topoSort() {
