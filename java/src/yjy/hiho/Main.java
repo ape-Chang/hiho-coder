@@ -35,7 +35,7 @@ public class Main {
 		}
 		for(int i = 0 ; i<K ; i++){
 			int index = scan.nextInt()-1;
-			counts[index]++;
+			counts[index] = (counts[index]+1)%142857;
 		}
 		for(int i = 0 ; i<M ; i++){
 			int pre = scan.nextInt()-1;
@@ -56,6 +56,7 @@ public class Main {
 			for(Node elm : cur.nexts){
 				elm.count--;
 				counts[elm.index] += counts[cur.index];
+				counts[elm.index] = counts[elm.index]%142857;
 				if(elm.count == 0){
 					queue.add(elm);
 				}
@@ -64,6 +65,7 @@ public class Main {
 		scan.close();
 		for(int i=0;i<N;i++){
 			sum += counts[i];
+			sum = sum%142857;
 		}
 		System.out.println(sum);
 	}
