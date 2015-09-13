@@ -2,75 +2,120 @@ package ape.chang;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Queue;
 import java.util.Scanner;
 
 public class Main {
   
-  static class UndiredctedGraph {
-    enum Color {White, Black, Uncolored}
-    static class Node {
-      public int id;
-      public List<Node> jacent;
-      public Node(int id) {
-        this.id = id; 
-        jacent = new ArrayList<Node>();
-        color = Color.Uncolored;
+  static class Candidate {
+    public int id;
+    public int ability;
+    public int salary;
+    public Candidate(int id, int ability, int salary) {
+      this.id = id;
+      this.ability = ability; 
+      this.salary = salary;
+    }
+  }
+  
+  public static List<List<Candidate>> combine(List<Candidate> all, int from, int size) {
+    List<List<Candidate>> result = new ArrayList<List<Candidate>>();
+    if (all.size() == from + size) {
+      List<Candidate> list = new ArrayList<Candidate>();
+      for(int i = 0; i < size; ++i)
+        list.add(all.get(from+i));
+    } else {
+      result.addAll(combine(all, from+1, size));
+      for (List<Candidate> list : combine(all, from+1, size-1)) {
+        list.add(all.get(from));
+        result.add(list);
       }
-      // extra
-      public Color color; 
     }
-    public List<Node> nodes;
-    public UndiredctedGraph(int n) {
-      nodes = new ArrayList<Node>();
-      for (int i = 0; i < n; ++i)
-        nodes.add(new Node(i));
+    return result;
+  }
+  
+  public static void solve(List<Candidate> female, List<Candidate> male, int budget, int x, int y) {
+    List<List<Candidate>> femaleCombination = combine(female, 0, x);
+    List<List<Candidate>> maleCombination = combine(male, 0, y);
+    
+    int maxAbility = 0;
+    int minSalary = 0;
+    List<List<Candidate>> possibilities = new ArrayList<List<Candidate>>();
+    for (int i = 0; i < femaleCombination.size(); ++i)
+      for (int j = 0; j < maleCombination.size(); ++j) {
+        int ability = 0;
+        int salary = 0;
+        List<Candidate> possibility = new ArrayList<Candidate>();
+        for(Candidate candidate : femaleCombination.get(i)) {
+          ability += candidate.ability;
+          salary += candidate.salary;
+          possibility.add(candidate);
+        }
+        for (Candidate candidate : maleCombination.get(j)) {
+          ability += candidate.ability;
+          salary += candidate.salary;
+          possibility.add(candidate);
+        }
+        if (salary > budget) continue;
+        if (ability == maxAbility) {
+          if (salary < minSalary) possibilities.clear();
+          possibilities.add(possibility);
+        }
+        if (ability > maxAbility) {
+          possibilities.clear();
+          possibilities.add(possibility);
+        }
+      }
+    
+    System.out.println(String.format("%d %d", maxAbility, minSalary));
+    
+    for (List<Candidate> possibility : possibilities) 
+      Collections.sort(possibility, new Comparator<Candidate>() {
+        @Override
+        public int compare(Candidate lhs, Candidate rhs) {
+          return rhs.id - lhs.id;
+        }});
+    
+    Collections.sort(possibilities, new Comparator<List<Candidate>>(){
+      @Override
+      public int compare(List<Candidate> lhs, List<Candidate> rhs) {
+        for (int i = 0; i < lhs.size(); ++i) {
+          if (lhs.get(i).id < rhs.get(i).id)
+            return 1;
+          if (lhs.get(i).id < rhs.get(i).id)
+            return -1;
+        }
+        return 0;
+      }});
+    
+    StringBuffer buffer = new StringBuffer();
+    for (Candidate candidate : possibilities.get(0)) {
+      buffer.append(candidate.id).append(" ");
     }
-    public void addEdge(int from, int to) {
-      nodes.get(from).jacent.add(nodes.get(to));
-      nodes.get(to).jacent.add(nodes.get(from));
-    }
-    public boolean isBipartite() {
-  	  for (Node node : nodes) {
-  		  if (node.color == Color.Uncolored) {
-  		    node.color = Color.Black;
-  		    Queue<Node> queue = new LinkedList<Node>();
-  		    queue.offer(node);
-  		    while (!queue.isEmpty()) {
-  		      Node _node = queue.poll();
-  		      Color inverseColor = (_node.color == Color.Black) ? Color.White : Color.Black;
-  		      for (Node jacent : _node.jacent) 
-  		        if (jacent.color == Color.Uncolored) {
-  		          jacent.color = inverseColor;
-  		          queue.offer(jacent);
-  		        } else 
-  		          if (jacent.color == _node.color)
-  		           return false;
-  		    }
-  		  }
-  	  }
-        return true;
-    }
+    System.out.println(buffer.toString());
   }
   
   public static void main(String[] args) {
     try{System.setIn(new FileInputStream("input"));}catch(Exception e){return;}
     Scanner scanner = new Scanner(System.in);
-    int t = scanner.nextInt();
-    while (t-- > 0) {
-    	int n = scanner.nextInt();
-    	int m = scanner.nextInt();
-    	UndiredctedGraph graph = new UndiredctedGraph(n);
-    	while (m-- > 0) {
-    		int from = scanner.nextInt() - 1;
-    		int to = scanner.nextInt() - 1;
-    		graph.addEdge(from, to);
-    	}
-    	if (graph.isBipartite()) System.out.println("Correct");
-    	else System.out.println("Wrong");
+    int N = scanner.nextInt();
+    int X = scanner.nextInt();
+    int Y = scanner.nextInt();
+    int B = scanner.nextInt();
+    List<Candidate> female = new ArrayList<Main.Candidate>();
+    List<Candidate> male = new ArrayList<Main.Candidate>();
+    for (int i = 1; i <= N; ++i) {
+      String gender = scanner.next();
+      int ability = scanner.nextInt();
+      int salary = scanner.nextInt();
+      if (gender == "F")
+        female.add(new Candidate(i, ability, salary));
+      else 
+        male.add(new Candidate(i, ability, salary));
     }
+    solve(female, male, B, X, Y);
     scanner.close();
   }
   
