@@ -22,7 +22,7 @@ public class Main {
         color = Color.Uncolored;
       }
       // extra
-      public Color color; // 1 for white, -1 for black, 0 for uncolored
+      public Color color; 
     }
     public List<Node> nodes;
     public UndiredctedGraph(int n) {
@@ -36,21 +36,45 @@ public class Main {
     }
     public boolean isBipartite() {
       try {
-        color(nodes.get(0), Color.Black);
+    	  for (Node node : nodes)
+    		  if (node.color == Color.Uncolored);
+    		  	color(nodes.get(0), Color.Black);
         return true;
       } catch(Exception e) {
         return false;
       }
     }
     private void color(Node node, Color color) {
-      if (node.color == color) ;
+      if (node.color == Color.Uncolored) {
+    	  node.color = color;
+    	  for (Node _node : node.jacent)
+    		  color(_node, (color == Color.Black) ? Color.White : Color.Black);
+      } else {
+    	  if (node.color == color)
+    		  return;
+    	  else
+    		  throw new RuntimeException();
+      }
+      
     }
   }
   
   public static void main(String[] args) {
     try{System.setIn(new FileInputStream("input"));}catch(Exception e){return;}
     Scanner scanner = new Scanner(System.in);
-    
+    int t = scanner.nextInt();
+    while (t-- > 0) {
+    	int n = scanner.nextInt();
+    	int m = scanner.nextInt();
+    	UndiredctedGraph graph = new UndiredctedGraph(n);
+    	while (m-- > 0) {
+    		int from = scanner.nextInt() - 1;
+    		int to = scanner.nextInt() - 1;
+    		graph.addEdge(from, to);
+    	}
+    	if (graph.isBipartite()) System.out.println("Correct");
+    	else System.out.println("Wrong");
+    }
     scanner.close();
   }
   
