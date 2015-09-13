@@ -20,7 +20,7 @@ public class Main {
     }
   }
    
-  public static List<List<Candidate>> combine(List<Candidate> all, int k) {
+  public static List<List<Candidate>> combine(List<Candidate> all, int k, int budget) {
     List<List<Candidate>> result = new ArrayList<List<Candidate>>();
     if (k == 0) return result;
     
@@ -34,8 +34,14 @@ public class Main {
       if (current == k) {
         
         List<Candidate> combination = new ArrayList<Candidate>();
-        for (int i = 0; i < k; ++i) combination.add(all.get(index[i]));
-        result.add(combination);
+        int salary = 0;
+        for (int i = 0; i < k; ++i) {
+            Candidate candidate = all.get(index[i]);
+            salary += candidate.salary;
+            combination.add(candidate);
+        }
+        if (salary <= budget)
+            result.add(combination);
         
         --current;
       } else {
@@ -82,14 +88,18 @@ public class Main {
       return result;
   }
   
-  public static List<List<Candidate>> crossProduct(List<List<Candidate>> female, List<List<Candidate>> male) {
+  public static List<List<Candidate>> crossProduct(List<List<Candidate>> female, List<List<Candidate>> male, int budget) {
       if (female.size() == 0) return male;
       if (male.size() == 0) return female;
       
       List<List<Candidate>> result = new ArrayList<List<Candidate>>();
       for (int i = 0; i < female.size(); ++i)
-	  for (int j = 0; j < male.size(); ++j)
-	      result.add(merge(female.get(i), male.get(j)));
+	  for (int j = 0; j < male.size(); ++j) {
+	      List<Candidate> comb = merge(female.get(i), male.get(j));
+	      int salary = 0;
+	      for (Candidate candidate : comb) salary += candidate.salary;
+	      if (salary <= budget) result.add(comb);
+	  }
       return result;
   }
   
@@ -97,7 +107,7 @@ public class Main {
       int minSalary = 0;
     int maxAbility = 0;
     List<List<Candidate>> possibilities = new ArrayList<List<Candidate>>();
-    for (List<Candidate> comb : crossProduct(combine(female, y), combine(male, x))) {
+    for (List<Candidate> comb : crossProduct(combine(female, y, budget), combine(male, x, budget), budget)) {
         int ability = 0;
         int salary = 0;
         for (Candidate candidate : comb) {
@@ -127,7 +137,6 @@ public class Main {
     
     System.out.println(String.format("%d %d", maxAbility, minSalary));
     
-    assert possibilities.size() != 0;
     Collections.sort(possibilities, new Comparator<List<Candidate>>(){
       @Override
       public int compare(List<Candidate> lhs, List<Candidate> rhs) {
