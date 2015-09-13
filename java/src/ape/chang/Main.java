@@ -1,13 +1,11 @@
 package ape.chang;
 
 import java.io.FileInputStream;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
-import java.util.Stack;
 
 public class Main {
   
@@ -35,27 +33,25 @@ public class Main {
       nodes.get(to).jacent.add(nodes.get(from));
     }
     public boolean isBipartite() {
-      try {
-    	  for (Node node : nodes)
-    		  if (node.color == Color.Uncolored);
-    		  	color(nodes.get(0), Color.Black);
+  	  for (Node node : nodes) {
+  		  if (node.color == Color.Uncolored) {
+  		    node.color = Color.Black;
+  		    Queue<Node> queue = new LinkedList<Node>();
+  		    queue.offer(node);
+  		    while (!queue.isEmpty()) {
+  		      Node _node = queue.poll();
+  		      Color inverseColor = (_node.color == Color.Black) ? Color.White : Color.Black;
+  		      for (Node jacent : _node.jacent) 
+  		        if (jacent.color == Color.Uncolored) {
+  		          jacent.color = inverseColor;
+  		          queue.offer(jacent);
+  		        } else 
+  		          if (jacent.color == _node.color)
+  		           return false;
+  		    }
+  		  }
+  	  }
         return true;
-      } catch(Exception e) {
-        return false;
-      }
-    }
-    private void color(Node node, Color color) {
-      if (node.color == Color.Uncolored) {
-    	  node.color = color;
-    	  for (Node _node : node.jacent)
-    		  color(_node, (color == Color.Black) ? Color.White : Color.Black);
-      } else {
-    	  if (node.color == color)
-    		  return;
-    	  else
-    		  throw new RuntimeException();
-      }
-      
     }
   }
   
