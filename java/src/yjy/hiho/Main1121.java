@@ -18,6 +18,9 @@ public class Main1121 {
 			s = State.U;
 			adjs = new ArrayList<Node>();
 		}
+		void test(){
+//			waitfor(this);
+		}
 	}
 	
 	public static void solveCase(Scanner scan){
