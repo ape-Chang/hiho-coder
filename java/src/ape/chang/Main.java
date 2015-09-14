@@ -1,19 +1,51 @@
 package ape.chang;
 
 import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 import java.util.Scanner;
 
 public class Main {
-  
-    private static char[] expand(String s) {
-	char[] A = new char[2*s.length() + 1];
-	int i = 0;
-	for (char c : s.toCharArray()) {
-	    A[i++] = '#';
-	    A[i++] = c;
+    
+    static class Dag {
+	static class Node {
+	    public int id;
+	    public List<Node> jacent;
+	    public Node(int id) {
+		this.id = id;
+		this.jacent = new ArrayList<Main.Dag.Node>();
+	    }
+	    public int indegree;
 	}
-	A[i] = '#';
-	return A;
+	public List<Node> nodes;
+	public Dag(int n) {
+	    nodes = new ArrayList<Main.Dag.Node>();
+	    for (int i = 0; i < n; ++i) {
+		nodes.add(new Node(i));
+	    }
+	}
+	public void addEdge(int from, int to) {
+	    nodes.get(from).jacent.add(nodes.get(to));
+	    nodes.get(to).indegree++;
+	}
+	public boolean validate() {
+	    List<Node> sorted = new ArrayList<Node>();
+	    Queue<Node> noIndegrees = new LinkedList<Node>();
+	    for (Node node : nodes)
+		if (node.indegree == 0)
+		    noIndegrees.offer(node);
+	    while (!noIndegrees.isEmpty()) {
+		Node node = noIndegrees.poll();
+		sorted.add(node);
+		for (Node jacent : node.jacent) 
+		    if (--jacent.indegree == 0)
+			noIndegrees.offer(jacent);
+	    }
+	    if (sorted.size() == nodes.size()) return true;
+	    else return false;
+	}
     }
     
     public static void main(String[] args) {
@@ -21,22 +53,18 @@ public class Main {
 	Scanner scanner = new Scanner(System.in);
 	int t = scanner.nextInt();
 	while (t-- > 0) {
-	    char[] A = expand(scanner.next());
-	    int[] P = new int[A.length];
-	    int id = 0, mx = 1;
-	    for (int i = 1; i < A.length; ++i) {
-		if (i < id+mx) 
-		    P[i] = Math.min(P[2*id-i], id+mx-i);
-		while (i-P[i] >= 0 && i+P[i] < A.length && A[i-P[i]] == A[i+P[i]])
-		    P[i]++;
-		if (i+P[i] > id+mx) { // <- important!
-		    id = i;
-		    mx = P[i];
-		}
+	    int n = scanner.nextInt();
+	    Dag dag = new Dag(n);
+	    int m = scanner.nextInt();
+	    while (m-- > 0) {
+		int from = scanner.nextInt()-1;
+		int to = scanner.nextInt()-1;
+		dag.addEdge(from, to);
 	    }
-	    mx = 0;
-	    for (int m : P) mx = Math.max(mx, m);
-	    System.out.println(mx-1);
+	    if (dag.validate())
+		System.out.println("Correct");
+	    else 
+		System.out.println("Wrong");
 	}
 	scanner.close();
     }
