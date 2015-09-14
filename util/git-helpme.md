@@ -6,3 +6,5 @@
 `git tag -d ${tagname}`
 #### 删除远端Tag
 `git push --delete origin ${tagname}`
+#### 从某个Tag新建分支
+`git checkout -b ${branchname} ${tagname}`
