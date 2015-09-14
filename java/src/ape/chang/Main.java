@@ -20,7 +20,6 @@ public class Main {
     }
   }
    
-  
   static class Combination {
       public List<Candidate> elements;
       public Combination() {
