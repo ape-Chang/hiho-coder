@@ -20,137 +20,137 @@ public class Main {
     }
   }
    
-  public static List<List<Candidate>> combine(List<Candidate> all, int k, int budget) {
-    List<List<Candidate>> result = new ArrayList<List<Candidate>>();
-    if (k == 0) return result;
-    
-    int n = all.size();
-    int[] index = new int[k];
-    for (int i = 0; i < index.length; ++i) index[i] = -1;
-    index[0] = 0;
-    int current = 1;
-    while (true) {
-      if (current == -1) break;
-      if (current == k) {
-        
-        List<Candidate> combination = new ArrayList<Candidate>();
-        int salary = 0;
-        for (int i = 0; i < k; ++i) {
-            Candidate candidate = all.get(index[i]);
-            salary += candidate.salary;
-            combination.add(candidate);
-        }
-        if (salary <= budget)
-            result.add(combination);
-        
-        --current;
-      } else {
-        if (index[current] == -1) {
-          index[current] = index[current-1] + 1;
-          ++current;
+  
+  static class Combination {
+      public List<Candidate> elements;
+      public Combination() {
+	  elements = new ArrayList<Candidate>();
+      }
+      public int salary;
+      public int ability;
+  }
+  
+  private static List<Combination> combine(List<Candidate> all, int k, int budget) {
+      List<Combination> result = new ArrayList<Combination>();
+      if (k == 0) return result;
+      
+      int n = all.size();
+      int[] index = new int[k];
+      for (int i = 0; i < index.length; ++i) index[i] = -1;
+      index[0] = 0;
+      int current = 1;
+      while (true) {
+        if (current == -1) break;
+        if (current == k) {
+          
+            Combination combination = new Combination();
+            for (int i = 0; i < k; ++i) {
+                Candidate candidate = all.get(index[i]);
+                combination.salary += candidate.salary;
+                combination.ability += candidate.ability;
+                combination.elements.add(candidate);
+            }
+            if (combination.salary <= budget)
+                result.add(combination);
+          
+          --current;
         } else {
-          if (index[current] + 1 > n-k+current) {
-            index[current] = -1;
-            --current;
-          } else {
-            index[current]++;
+          if (index[current] == -1) {
+            index[current] = index[current-1] + 1;
             ++current;
+          } else {
+            if (index[current] + 1 > n-k+current) {
+              index[current] = -1;
+              --current;
+            } else {
+              index[current]++;
+              ++current;
+            }
           }
         }
       }
-    }
-    
-    return result;
+      
+      return result;
   }
   
-  public static List<Candidate> merge(List<Candidate> female, List<Candidate> male) {
-      List<Candidate> result = new ArrayList<Candidate>();
+  public static Combination merge(Combination female, Combination male) {
+      Combination result = new Combination();
+      result.salary = female.salary + male.salary;
+      result.ability = female.ability + male.ability;
       int i = 0, j = 0;
-      while (i < female.size() && j < male.size()) {
-	  Candidate f = female.get(i);
-	  Candidate m = male.get(j);
+      while (i < female.elements.size() && j < male.elements.size()) {
+	  Candidate f = female.elements.get(i);
+	  Candidate m = male.elements.get(j);
 	  if (f.id < m.id) {
-	      result.add(f);
+	      result.elements.add(f);
 	      ++i;
 	  } else {
-	      result.add(m);
+	      result.elements.add(m);
 	      ++j;
 	  }
       }
-      while (i < female.size()) {
-	  result.add(female.get(i));
+      while (i < female.elements.size()) {
+	  result.elements.add(female.elements.get(i));
 	  ++i;
       }
-      while (j < male.size()) {
-	  result.add(male.get(j));
+      while (j < male.elements.size()) {
+	  result.elements.add(male.elements.get(j));
 	  ++j;
       }
       return result;
   }
   
-  public static List<List<Candidate>> crossProduct(List<List<Candidate>> female, List<List<Candidate>> male, int budget) {
-      if (female.size() == 0) return male;
+  private static List<Combination> crossProduct(List<Combination> female, List<Combination> male, int budget) {
+      if  (female.size() == 0) return male;
       if (male.size() == 0) return female;
-      
-      List<List<Candidate>> result = new ArrayList<List<Candidate>>();
+      List<Combination> result = new ArrayList<Combination>();
       for (int i = 0; i < female.size(); ++i)
 	  for (int j = 0; j < male.size(); ++j) {
-	      List<Candidate> comb = merge(female.get(i), male.get(j));
-	      int salary = 0;
-	      for (Candidate candidate : comb) salary += candidate.salary;
-	      if (salary <= budget) result.add(comb);
+	      if (female.get(i).salary + male.get(j).salary <= budget) 
+		  result.add(merge(female.get(i), male.get(j)));
 	  }
       return result;
   }
   
   public static void solve(List<Candidate> female, List<Candidate> male, int budget, int x, int y) {
       int minSalary = 0;
-    int maxAbility = 0;
-    List<List<Candidate>> possibilities = new ArrayList<List<Candidate>>();
-    for (List<Candidate> comb : crossProduct(combine(female, y, budget), combine(male, x, budget), budget)) {
-        int ability = 0;
-        int salary = 0;
-        for (Candidate candidate : comb) {
-            salary += candidate.salary;
-            ability += candidate.ability;
-        }
-
-        if (salary > budget) continue;
-        if (ability == maxAbility) {
-            if (salary > minSalary)
-        	continue;
-            if (salary == minSalary)
-        	possibilities.add(comb);
-            if (salary < minSalary) {
-        	minSalary = salary;
+      int maxAbility = 0;
+      List<Combination> possibilities = new ArrayList<Combination>();
+      
+    for (Combination combination : crossProduct(combine(female, y, budget), combine(male, x, budget), budget)) {
+        if (combination.ability == maxAbility) {
+            if (combination.salary == minSalary)
+        	possibilities.add(combination);
+            if (combination.salary < minSalary) {
+        	minSalary = combination.salary;
         	possibilities.clear();
-        	possibilities.add(comb);
+        	possibilities.add(combination);
             }
         }
-        if (ability > maxAbility) {
-            minSalary = salary;
-            maxAbility = ability;
+        if (combination.ability > maxAbility) {
+            minSalary = combination.salary;
+            maxAbility = combination.ability;
             possibilities.clear();
-            possibilities.add(comb);
+            possibilities.add(combination);
         }	
     }
     
     System.out.println(String.format("%d %d", maxAbility, minSalary));
     
-    Collections.sort(possibilities, new Comparator<List<Candidate>>(){
+    Collections.sort(possibilities, new Comparator<Combination>(){
       @Override
-      public int compare(List<Candidate> lhs, List<Candidate> rhs) {
-        for (int i = 0; i < lhs.size(); ++i) {
-          if (lhs.get(i).id > rhs.get(i).id)
+      public int compare(Combination lhs, Combination rhs) {
+        for (int i = 0; i < lhs.elements.size(); ++i) {
+          if (lhs.elements.get(i).id > rhs.elements.get(i).id)
             return 1;
-          if (lhs.get(i).id < rhs.get(i).id)
+          if (lhs.elements.get(i).id < rhs.elements.get(i).id)
             return -1;
         }
         return 0;
       }});
     
     StringBuffer buffer = new StringBuffer();
-    for (Candidate candidate : possibilities.get(0)) 
+    for (Candidate candidate : possibilities.get(0).elements) 
       buffer.append(candidate.id).append(" ");
     System.out.println(buffer.toString());
   }
