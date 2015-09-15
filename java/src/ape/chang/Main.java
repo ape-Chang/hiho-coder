@@ -21,8 +21,7 @@ public class Main {
 			M[i][j] = dist[i][j] = Integer.MAX_VALUE;
 	}
 	public void addEdge(int from, int to, int length) {
-	    M[from][to] = Math.min(M[from][to], length);
-	    M[to][from] = M[from][to];
+	    M[to][from] = M[from][to] = dist[from][to] = dist[to][from] = Math.min(M[from][to], length);
 	}
 	public int distance(int src, int dst) {
 	    if (src == dst) return 0;
@@ -74,9 +73,16 @@ public class Main {
 	    for (int i = 0; i < dist.length; ++i) 
 		this.dist[src][i] = this.dist[i][src] = dist[i];	    
 	}
+	private void Floyd() {
+	    int n = M.length;
+	    for (int k = 0; k < n; ++k)
+		for (int i = 0; i < n; ++i)
+		    for (int j = 0; j < n; ++j)
+			if (dist[i][k] != Integer.MAX_VALUE && dist[k][j] != Integer.MAX_VALUE)
+			    dist[i][j] = Math.min(dist[i][j], dist[i][k] + dist[k][j]);
+	}
 	public void computeDistance() {
-	    for (int i = 0; i < M.length; ++i) 
-		computeDistance(i);
+	    Floyd();
 	}
     }
     
