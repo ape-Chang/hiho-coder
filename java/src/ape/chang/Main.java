@@ -6,7 +6,7 @@ import java.util.Stack;
 
 public class Main {
     
-    private static int count9076(String s) {
+    private static int count9706(String s) {
 	Stack<Character> stack = new Stack<Character>();
 	for (char c : s.toCharArray())
 	    if (c == '9' || c == '0' || c == '7' || c == '6') 
@@ -38,7 +38,7 @@ public class Main {
 	int t = Integer.valueOf(scanner.nextLine());
 	while (t-- > 0) {
 	    String s = scanner.next();
-	    System.out.println(count9076(s));
+	    System.out.println(count9706(s));
 	}
 	scanner.close();
     }
