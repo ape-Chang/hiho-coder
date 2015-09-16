@@ -1,99 +1,88 @@
 package ape.chang;
 
 import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Scanner;
-import java.util.Stack;
+import java.util.Set;
 
-public class Main {
+public class Main {  
     
-    static class Token {
-	public int token;
-	public Type type;
-	public Token(int token, Type type) {
-	    this.token = token;
-	    this.type = type;
+    static class FourSegments {
+	static class Point {
+	    public int x, y;
+	    public static Point readPoint(Scanner scanner) {
+		Point point = new Point();
+		point.x = scanner.nextInt();
+		point.y = scanner.nextInt();
+		return point;
+	    }
+	    @Override public boolean equals(Object obj) {
+		if (obj instanceof Point && x == ((Point) obj).x && y == ((Point) obj).y)
+		    return true;
+		else
+		    return false;
+	    }
+	    @Override public int hashCode() {return x<<16 + y;}
 	}
-	@Override public String toString() {return type.toString();}
-	enum Type {character, number, left, right, eos}
-    }
-    
-    static class TokenStream {
-	char[] A;
-	int k;
-	public TokenStream(String s) {
-	    A = s.toCharArray();
-	    k = 0;
-	}
-	public Token next() {
-	    if (k == A.length)
-		return new Token(-1, Token.Type.eos);
-	    else if (A[k] == '(')
-		return new Token(A[k++], Token.Type.left);
-	    else if (A[k] == ')')
-		return new Token(A[k++], Token.Type.right);
-	    else if (Character.isUpperCase(A[k]))
-		return new Token(A[k++], Token.Type.character);
-	    else {
-		int n = A[k++] - '0';
-		while (k < A.length && Character.isDigit(A[k])) 
-		    n = 10*n + A[k++]-'0';
-		return new Token(n, Token.Type.number);
+	static class Segment {
+	    Point from;
+	    Point to;
+	    public Segment(Point from, Point to) {this.from = from; this.to = to;}
+	    public boolean connectedTo(Segment segment) {
+		return (this.from.equals(segment.from) || this.from.equals(segment.to) ||
+			this.to.equals(segment.from) || this.to.equals(segment.to));
+	    }
+	    public boolean parallelTo(Segment segment) {
+		return (from.x-to.x)*(segment.from.y-segment.to.y) == 
+			(from.y-to.y)*(segment.from.x-segment.to.x);
+	    }
+	    public boolean perpendicularTo(Segment segment) {
+		return (from.x-to.x)*(segment.from.x-segment.to.x) + 
+			(from.y-to.y)*(segment.from.y-segment.to.y) == 0;
 	    }
 	}
-    }
-           
-    private static int count(Stack<Token> stack) {
-	if (stack.size() == 0) return 0;
-	if (stack.size() == 1) return 1;
-	
-	int count = 0;
-	Token token = stack.pop();
-	while (!stack.isEmpty()) {
-	    Token _token = stack.pop();
-	    if (_token.type == Token.Type.number) {
-		count += _token.token;
-		if (!stack.isEmpty()) token = stack.pop();
-		else token = null;
-	    } else {
-		count++;
-		token = _token;
-	    }
+	public Set<Point> points;
+	public List<Segment> segments;
+ 	public FourSegments() {
+	    points = new HashSet<Point>();
+	    segments = new ArrayList<Segment>();
 	}
-	if (token != null) count++;
-	return count;
-    }
-    
-    private static int countChar(String s) {
-	TokenStream stream = new TokenStream(s);
-	Stack<Token> stack = new Stack<Token>();
-	Token token = stream.next();
-	int count = 0;
-	while (token.type != Token.Type.eos) {
-	    if (token.type != Token.Type.right) stack.push(token);
-	    else {
-		Token times = stream.next();
-		
-		Stack<Token> _stack = new Stack<Token>();
-		Token _token = stack.pop();
-		while (_token.type != Token.Type.left) {
-		    _stack.push(_token);
-		    _token = stack.pop();
-		}
-		count = (count + count(_stack))*times.token;
+	public static FourSegments readFourSegments(Scanner scanner) {
+	    FourSegments r = new FourSegments();
+	    for (int i = 0; i < 4; ++i) {
+		 Point p = Point.readPoint(scanner);
+		 Point q = Point.readPoint(scanner);
+		 r.points.add(p);
+		 r.points.add(q);
+		 r.segments.add(new Segment(p, q));
 	    }
-	    token = stream.next();
+	    return r;
 	}
-	if (!stack.isEmpty()) count += count(stack);
-	return count;
+	public boolean isRectangele() {
+	    if (points.size() != 4) return false;
+	    Segment p = segments.get(0);
+	    for (int i = 1; i < 4; ++i) {
+		Segment q = segments.get(i);
+		if ((p.connectedTo(q) && p.perpendicularTo(q)) || 
+			(!p.connectedTo(q) && p.parallelTo(q)))
+		    continue;
+		return false;
+	    }
+	    return true;
+	}
     }
-    
+
     public static void main(String[] args) {
 	try{System.setIn(new FileInputStream("input"));}catch(Exception e){return;}
 	Scanner scanner = new Scanner(System.in);
 	int t = Integer.valueOf(scanner.nextLine());
 	while (t-- > 0) {
-	    String s = scanner.next();
-	    System.out.println(countChar(s));
+	    if (FourSegments.readFourSegments(scanner).isRectangele())
+		System.out.println("YES");
+	    else
+		System.out.println("NO");
 	}
 	scanner.close();
     }
