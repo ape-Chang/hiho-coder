@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-public class Main {  
-	
+public class P1066 {
+
 	static class UnionFindSet {
 		private Map<String, String> unionFindSet;
 		public UnionFindSet() {
@@ -63,6 +63,5 @@ public class Main {
 		}
 		scanner.close();
     }
-
+	
 }
-
