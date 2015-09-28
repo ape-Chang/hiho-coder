@@ -1,65 +1,56 @@
 package ape.chang;
 
 import java.io.FileInputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {  
 	
-	static class UnionFindSet {
-		private Map<String, String> unionFindSet;
-		public UnionFindSet() {
-			unionFindSet = new HashMap<String, String>();
+	static class X {
+		public char[] A;
+		public int size;
+		public X (String s) {
+			A = s.toCharArray();
+			Arrays.sort(A);
+			size = A.length;
 		}
-		public void union(String a, String b) {
-			String rootA = find(a);
-			String rootB = find(b);
-			if (rootA == null && rootB == null) {
-				unionFindSet.put(a, a);
-				unionFindSet.put(b, a);
-			} else if (rootA == null) {
-				unionFindSet.put(a, rootB);
-			} else if (rootB == null) {
-				unionFindSet.put(b, rootA);
-			} else {
-				if (!rootA.equals(rootB))
-					unionFindSet.put(rootB, rootA);
+		public void remove(char c) {
+			int i = index(c);
+			size--;
+			while (i < size) {
+				A[i] = A[i+1];
+				++i;
 			}
 		}
-		public String find(String x) {
-			if (!unionFindSet.containsKey(x))
-				return null;
-			String y = x;
-			while (!y.equals(unionFindSet.get(y)))
-				y = unionFindSet.get(y);
-			while (!y.equals(x)) {
-				String t = unionFindSet.get(x);
-				unionFindSet.put(x, y);
-				x = t;
-			}
-			return y;
+		public int index(char c) {
+			int i = 0;
+			while (A[i] != c) ++i;
+			return i;
 		}
 	}
 
+	static public long p(int n) {
+		if (n <= 1) return 1;
+		int p = 1;
+		while (n > 0) p *= n--;
+		return p;
+	}
+	
     public static void main(String[] args) {
 		try{System.setIn(new FileInputStream("input"));}catch(Exception e){return;}
 		Scanner scanner = new Scanner(System.in);
-		UnionFindSet unionFindSet = new UnionFindSet();
-		int t = scanner.nextInt();
-		while (t-- > 0) {
-			int op = scanner.nextInt();
-			String a = scanner.next();
-			String b = scanner.next();
-			if (op == 0) unionFindSet.union(a, b);
-			else {
-				String rootA = unionFindSet.find(a);
-				String rootB = unionFindSet.find(b);
-				if (rootA == null || rootB == null || !rootA.equals(rootB))
-					System.out.println("no");
-				else
-					System.out.println("yes");
+		
+		int n = scanner.nextInt();
+		while (n-- > 0) {
+			String s = scanner.next();
+			char[] A = s.toCharArray();
+			X x = new X(s);
+			long th = 1;
+			for (int i = 0; i < A.length; ++i) {
+				th += x.index(A[i])*p(x.size - 1);
+				x.remove(A[i]);
 			}
+			System.out.println(th);
 		}
 		scanner.close();
     }
