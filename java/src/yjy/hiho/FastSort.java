@@ -13,7 +13,7 @@ public class FastSort {
 		int slot = i;
 		int v = A[slot];
 		while(i<j){
-			while(i<j){
+			while(slot<j){
 				if(A[j]<v){
 					A[slot] = A[j];
 					slot = j;
@@ -23,7 +23,7 @@ public class FastSort {
 				}
 				j--;
 			}
-			while(i<j){
+			while(i<slot){
 				if(A[i]>v){
 					A[slot] = A[i];
 					slot = i;
