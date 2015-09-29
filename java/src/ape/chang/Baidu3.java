@@ -3,8 +3,7 @@ package ape.chang;
 import java.io.FileInputStream;
 import java.util.Scanner;
 
-public class Main {  
-	
+public class Baidu3 {
 	static public int longestDescendingSequenceLength(int[] A) {
 		int[] L = new int[A.length];
 		for (int i = 0; i < L.length; ++i) L[i] = 1;
@@ -29,6 +28,4 @@ public class Main {
 		}
 		scanner.close();
     }
-
 }
-
