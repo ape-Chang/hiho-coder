@@ -3,8 +3,7 @@ package ape.chang;
 import java.io.FileInputStream;
 import java.util.Scanner;
 
-public class Main {  
-	
+public class Ms1 {
 	public static int p, q;
 	public static double max;
 	public static double x, y, r;
@@ -70,6 +69,4 @@ public class Main {
 		System.out.println(String.format("%d %d", p, q));
 		scanner.close();
     }
-
 }
-
