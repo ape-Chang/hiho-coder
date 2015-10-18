@@ -1,75 +1,25 @@
 package ape.chang;
 
-import java.io.FileInputStream;
+import java.math.BigInteger;
 import java.util.Scanner;
 
 public class Main {  
 	
-	public static int p, q;
-	public static double max;
-	public static double x, y, r;
-	
-	public static void scanLeftHalf() {
-		int lowerBound = (int) Math.ceil(x);
-		int upperBound = (int) Math.floor(x+r);
-		int yy = (int) Math.ceil(y+r);
-		for (int i = lowerBound; i <= upperBound; ++i) {
-			double d = 0.0f;
-			while (true) {
-				d = (i-x)*(i-x) + (yy-y)*(yy-y);
-				if (d <= r*r) break;
-				--yy;
-			}
-			if (d >= max) {p = i; q = yy; max = d;}
-		}
-		for (int i = upperBound; i >= lowerBound; --i) {
-			double d = 0.0f;
-			while (true) {
-				d = (i-x)*(i-x) + (yy-y)*(yy-y);
-				if (d > r*r) break;
-				--yy;
-			}
-			++yy;
-			d = (i-x)*(i-x) + (yy-y)*(yy-y);
-			if (d > max) {p = i; q = yy; max = d;}
-		}
-	}
-	
-	public static void scanRightHalf() {
-		int lowerBound = (int) Math.ceil(x-r);
-		int upperBound = (int) Math.floor(x);
-		int yy = (int) Math.ceil(y+r);
-		for (int i = upperBound; i >= lowerBound; --i) {
-			double d = 0.0f;
-			while (true) {
-				d = (i-x)*(i-x) + (yy-y)*(yy-y);
-				if (d <= r*r) break;
-				--yy;
-			}
-			if (d > max) {p = i; q = yy; max = d;}
-		}
-		for (int i = lowerBound; i <= upperBound; ++i) {
-			double d = 0.0f;
-			while (true) {
-				d = (i-x)*(i-x) + (yy-y)*(yy-y);
-				if (d > r*r) break;
-				--yy;
-			}
-			++yy;
-			d = (i-x)*(i-x) + (yy-y)*(yy-y);
-			if (d > max) {p = i; q = yy; max = d;}
-		}
-	}
-	
     public static void main(String[] args) {
-		try{System.setIn(new FileInputStream("input"));}catch(Exception e){return;}
 		Scanner scanner = new Scanner(System.in);
-		x = scanner.nextDouble(); y = scanner.nextDouble(); r = scanner.nextDouble();
-		scanLeftHalf();
-		scanRightHalf();
-		System.out.println(String.format("%d %d", p, q));
+		while(scanner.hasNext()) {
+			int n = scanner.nextInt();
+			BigInteger c = BigInteger.valueOf(scanner.nextInt());
+			while (n-- > 0) {
+				BigInteger b = BigInteger.valueOf(scanner.nextInt());
+				if (b.compareTo(c) <= 0) c = c.add(b);
+				else c = c.add( c.gcd(b) );
+			}
+			System.out.println(c);
+		}
 		scanner.close();
     }
+    
 
 }
 
